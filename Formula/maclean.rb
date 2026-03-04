@@ -6,7 +6,6 @@ class Maclean < Formula
   license "MIT"
 
   # Requires macOS Tahoe (26.3) or higher for modern Swift concurrency and SwiftUI MenuBarExtra support
-  depends_on xcode: ["18.0", :build]
   depends_on macos: :tahoe
 
   def install
