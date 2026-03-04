@@ -11,45 +11,61 @@ import os
 /// - All kernel resources (`CFMachPort`, `CFRunLoopSource`) are cleaned up meticulously to prevent zombie taps.
 public final class EventTapManager: @unchecked Sendable {
     
-    /// The dedicated background thread that runs the CFRunLoop for the event tap.
-    private var tapThread: Thread?
+    private let lock = NSLock()
     
-    /// The actual tap port to the window server.
-    private(set) var tapPort: CFMachPort?
-    
-    /// The run loop source attached to our tap thread.
-    private var runLoopSource: CFRunLoopSource?
-    
-    /// The run loop of the dedicated tap thread.
-    private var tapRunLoop: CFRunLoop?
-    
-    /// Lock for atomic read/write of `isBlocking`
-    private var stateLock = os_unfair_lock()
-    private var _isBlocking: Bool = false
-    
-    /// Whether the tap should silently drop events.
-    public var isBlocking: Bool {
-        get {
-            os_unfair_lock_lock(&stateLock)
-            let value = _isBlocking
-            os_unfair_lock_unlock(&stateLock)
-            return value
-        }
-        set {
-            os_unfair_lock_lock(&stateLock)
-            _isBlocking = newValue
-            os_unfair_lock_unlock(&stateLock)
-        }
+    private var _tapThread: Thread?
+    private var tapThread: Thread? {
+        get { lock.lock(); defer { lock.unlock() }; return _tapThread }
+        set { lock.lock(); defer { lock.unlock() }; _tapThread = newValue }
     }
     
-    /// Called when the emergency key chord is detected (e.g., left shift + right shift + escape).
-    /// This closure is called asynchronously on another thread, so no locks are held.
-    public var onEmergencyUnlock: (@Sendable () -> Void)?
+    private var _tapPort: CFMachPort?
+    private(set) var tapPort: CFMachPort? {
+        get { lock.lock(); defer { lock.unlock() }; return _tapPort }
+        set { lock.lock(); defer { lock.unlock() }; _tapPort = newValue }
+    }
     
-    /// State for the emergency key chord (accessed only on the tap thread, no lock needed)
-    private var leftShiftDown = false
-    private var rightShiftDown = false
-    private var escapeDown = false
+    private var _runLoopSource: CFRunLoopSource?
+    private var runLoopSource: CFRunLoopSource? {
+        get { lock.lock(); defer { lock.unlock() }; return _runLoopSource }
+        set { lock.lock(); defer { lock.unlock() }; _runLoopSource = newValue }
+    }
+    
+    private var _tapRunLoop: CFRunLoop?
+    private var tapRunLoop: CFRunLoop? {
+        get { lock.lock(); defer { lock.unlock() }; return _tapRunLoop }
+        set { lock.lock(); defer { lock.unlock() }; _tapRunLoop = newValue }
+    }
+    
+    private var _isBlocking: Bool = false
+    public var isBlocking: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return _isBlocking }
+        set { lock.lock(); defer { lock.unlock() }; _isBlocking = newValue }
+    }
+    
+    private var _onEmergencyUnlock: (@Sendable () -> Void)?
+    public var onEmergencyUnlock: (@Sendable () -> Void)? {
+        get { lock.lock(); defer { lock.unlock() }; return _onEmergencyUnlock }
+        set { lock.lock(); defer { lock.unlock() }; _onEmergencyUnlock = newValue }
+    }
+    
+    private var _leftShiftDown = false
+    private var leftShiftDown: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return _leftShiftDown }
+        set { lock.lock(); defer { lock.unlock() }; _leftShiftDown = newValue }
+    }
+    
+    private var _rightShiftDown = false
+    private var rightShiftDown: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return _rightShiftDown }
+        set { lock.lock(); defer { lock.unlock() }; _rightShiftDown = newValue }
+    }
+    
+    private var _escapeDown = false
+    private var escapeDown: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return _escapeDown }
+        set { lock.lock(); defer { lock.unlock() }; _escapeDown = newValue }
+    }
     
     public init() {}
     
