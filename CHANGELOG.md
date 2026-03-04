@@ -16,6 +16,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Combined biometric + timeout based `UnlockCoordinator`
 - Hardware Key Chord fallbacks correctly integrated into fast-paths
 - Fully standalone `MacleanCLI` terminal tool with timer outputs
-- Comprehensive `MacleanApp` SwiftUI-based Menu Bar GUI for configuring preferences manually
-- Homebrew formula and Cask configurations
+- Homebrew formula configurations
 - `man/maclean.1` Troff groff specifiers for OS `man` viewing out-of-the-box

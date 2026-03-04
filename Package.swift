@@ -4,11 +4,10 @@ import PackageDescription
 let package = Package(
     name: "maclean",
     platforms: [
-        .macOS("26.3") // macOS Tahoe (26.3) minimum
+        .macOS(.v14) // macOS Sonoma (14.0) minimum
     ],
     products: [
         .executable(name: "maclean", targets: ["MacleanCLI"]),
-        .executable(name: "MacleanApp", targets: ["MacleanApp"]),
         .library(name: "MacleanCore", targets: ["MacleanCore"])
     ],
     targets: [
@@ -18,10 +17,6 @@ let package = Package(
         ),
         .executableTarget(
             name: "MacleanCLI",
-            dependencies: ["MacleanCore"]
-        ),
-        .executableTarget(
-            name: "MacleanApp",
             dependencies: ["MacleanCore"]
         ),
         .testTarget(

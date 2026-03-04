@@ -10,18 +10,10 @@
 
 ### Via Homebrew (Recommended)
 
-You can install either the CLI tool or the Menu Bar GUI app via Homebrew.
-
-**CLI Tool:**
+You can install the CLI tool via Homebrew.
 
 ```bash
 brew install maclean
-```
-
-**GUI App:**
-
-```bash
-brew install --cask maclean
 ```
 
 ### Manual Install from Source
@@ -62,18 +54,11 @@ maclean --touch-id
 maclean --time 60 --touch-id
 ```
 
-### GUI Usage
-
-1. Launch **Maclean**. It lives entirely in your macOS Menu Bar.
-2. Click the keyboard icon in the menu bar.
-3. Choose your duration and Touch ID preference.
-4. Click **Start Cleaning**. A full-screen semi-transparent overlay will appear while input is blocked.
-
 ## Architecture & OS-Level Safety
 
 Maclean is designed from the ground up to prevent OS-level lockouts while maintaining a near-zero memory footprint.
 
-- **Memory Footprint**: The `MacleanCore` engine uses meticulous ARC discipline. The GUI idles at under 15 MB RSS and operates well below 25 MB RSS when blocking. The CLI binary is less than 2 MB.
+- **Memory Footprint**: The `MacleanCore` engine uses meticulous ARC discipline. The CLI binary is less than 2 MB.
 - **Single-Lock Discipline**: The core blocking state is isolated into a Swift `actor` to prevent data races and deadlocks.
 - **Priority Protocol**: The hot-path callback runs on a dedicated, high-priority thread utilizing `os_unfair_lock` to entirely sidestep priority inversion.
 - **Watchdog Failsafe**: A background heartbeat mechanism actively monitors the Maclean process. If the application crashes or hangs mid-session, the watchdog will immediately sever the process, forcing the macOS kernel to reap the event tap and restore input instantly.

@@ -10,7 +10,6 @@ in `MacleanCore` could permanently lock a user's machine until forced reboot.
 - **`BlockingSessionActor`**: Owns all mutable blocking state, serializing state transitions.
 - **`EventTapManager`**: C-based event tap bridge running on a dedicated run-loop thread.
 - **`MacleanCLI`**: The Homebrew-installable command line tool.
-- **`MacleanApp`**: The Menu Bar GUI application (`.app` bundle via Homebrew Cask).
 
 ## Setting Up
 
@@ -26,7 +25,6 @@ in `MacleanCore` could permanently lock a user's machine until forced reboot.
 
 `maclean` is a background utility. It must have a negligible memory footprint at all times.
 
-- **Idle memory target**: Menu bar app must consume under **15 MB RSS** when idle.
 - **Active blocking target**: Memory usage must not exceed **25 MB RSS**.
 - **Run Instruments**: Use XCode Instruments (Leaks + Allocations) to verify zero leaks before submitting a PR.
 - **No Tap Allocations**: The `CGEventTap` callback must allocate zero objects on the hot path.
@@ -56,7 +54,7 @@ All OS-level tests, including 100-cycle deadlock stress tests and signal handlin
 1. Merge approved PRs entirely to `main`.
 2. Update `CHANGELOG.md` exactly following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 3. Tag the new release (`vX.Y.Z`).
-4. Update `Formula/maclean.rb` and `Cask/maclean.rb` shasums.
+4. Update `Formula/maclean.rb` shasums.
 
 ## Code of Conduct
 
