@@ -10,13 +10,11 @@ jobs:
   build_and_test:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Select latest Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
+    - uses: actions/checkout@v4
     - name: Run lint
-      run: swiftlint
+      run: |
+        brew install swiftlint || true
+        swiftlint
     - name: Build Release
       run: swift build -c release
     - name: Test (TSan)
