@@ -34,15 +34,15 @@ func parseArguments() -> (timeout: TimeInterval?, touchID: Bool) {
         exit(0)
     }
     
-    var timeout: TimeInterval? = nil
+    var timeout: TimeInterval?
     var touchID = false
     
     var argsIterator = args.makeIterator()
     while let arg = argsIterator.next() {
         switch arg {
         case "--time":
-            if let val = argsIterator.next(), let t = Double(val) {
-                timeout = t
+            if let val = argsIterator.next(), let parsedTimeout = Double(val) {
+                timeout = parsedTimeout
             } else {
                 print("Error: --time requires a numeric value in seconds.")
                 exit(1)
@@ -114,7 +114,7 @@ Task {
         
         let start = Date()
         let chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-        var i = 0
+        var spinnerIndex = 0
         
         print("Emergency Unlock: Press Left Shift + Right Shift + Escape at any time.\n")
         
@@ -122,17 +122,17 @@ Task {
         while await actor.isBlocking {
             let elapsed = Date().timeIntervalSince(start)
             var timeStr = ""
-            if let t = timeout {
-                let remaining = max(0, Int(t - elapsed))
+            if let activeTimeout = timeout {
+                let remaining = max(0, Int(activeTimeout - elapsed))
                 timeStr = " [\(remaining)s remaining]"
             } else if touchID {
                 timeStr = " [Waiting for Touch ID]"
             }
             
             // Move cursor to start of line, clear it, then render
-            print("\r\u{1B}[K\(chars[i % chars.count]) Cleaning mode active.\(timeStr)", terminator: "")
+            print("\r\u{1B}[K\(chars[spinnerIndex % chars.count]) Cleaning mode active.\(timeStr)", terminator: "")
             fflush(stdout)
-            i += 1
+            spinnerIndex += 1
             
             try await Task.sleep(nanoseconds: 100_000_000)
         }

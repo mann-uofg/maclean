@@ -63,9 +63,9 @@ struct PopoverView: View {
                     
                     Toggle("Require Touch ID to Unlock", isOn: $appState.enableTouchID)
                     
-                    Button(action: {
+                    Button {
                         appState.startCleaning()
-                    }) {
+                    } label: {
                         Text("Start Cleaning")
                             .font(.headline)
                             .frame(maxWidth: .infinity)

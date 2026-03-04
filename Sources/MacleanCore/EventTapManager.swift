@@ -86,7 +86,9 @@ public final class EventTapManager: @unchecked Sendable {
             guard let self = self else { return }
             self.tapRunLoop = CFRunLoopGetCurrent()
             CFRunLoopAddSource(self.tapRunLoop, self.runLoopSource, .commonModes)
-            CGEvent.tapEnable(tap: self.tapPort!, enable: true)
+            if let port = self.tapPort {
+                CGEvent.tapEnable(tap: port, enable: true)
+            }
             CFRunLoopRun() // Blocks until CFRunLoopStop is called
         }
         

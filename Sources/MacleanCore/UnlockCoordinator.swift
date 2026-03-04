@@ -24,9 +24,9 @@ public final class UnlockCoordinator: Sendable {
         try await withThrowingTaskGroup(of: Void.self) { group in
             
             // 1. Timeout Path
-            if let t = timeout, t > 0 {
+            if let activeTimeout = timeout, activeTimeout > 0 {
                 group.addTask {
-                    let nanoseconds = UInt64(t * 1_000_000_000)
+                    let nanoseconds = UInt64(activeTimeout * 1_000_000_000)
                     try await Task.sleep(nanoseconds: nanoseconds)
                 }
             }
@@ -70,7 +70,7 @@ public final class UnlockCoordinator: Sendable {
             }
             
             // Wait for the first task to finish successfully
-            if let _ = try await group.next() {
+            if try await group.next() != nil {
                 // First to finish wins. Cancel the rest cleanly.
                 group.cancelAll()
             }
