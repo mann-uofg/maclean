@@ -9,8 +9,8 @@ func printUsage() {
 
     USAGE:
       maclean                 # Block indefinitely until Touch ID is verified (default)
-      maclean <seconds>       # Block for exactly N seconds
-      maclean <seconds> touch # Block for N seconds OR until Touch ID
+      maclean <seconds>       # Block for exactly N seconds WITH Touch ID
+      maclean <seconds> touch # (Redundant) Block for N seconds WITH Touch ID
 
     OPTIONS:
       -h, --help              # Print this help message
@@ -18,8 +18,8 @@ func printUsage() {
 
     EXAMPLES:
       maclean                 (blocks until Touch ID)
-      maclean 30              (blocks for 30 seconds)
-      maclean 120 touch       (blocks for 2 minutes or until Touch ID)
+      maclean 30              (blocks for 30 seconds OR until Touch ID)
+      maclean 120             (blocks for 2 minutes OR until Touch ID)
 
     HOW TO STOP:
       - Wait for the timer to end
@@ -49,7 +49,7 @@ func parseArguments() -> (timeout: TimeInterval?, touchID: Bool) {
     }
     
     var timeout: TimeInterval?
-    var touchID = false
+    var touchID = true // Universally enabled by default per user request
     
     for arg in args {
         if arg.lowercased() == "touch" || arg == "--touch-id" {
@@ -117,7 +117,7 @@ Task {
         let chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
         var spinnerIndex = 0
         
-        print("Emergency Unlock: Press Left Shift + Right Shift + Escape at any time.\n")
+        print("Emergency Unlock: Press Control + Option + Command + Escape.\n")
         
         // Polling loop to draw the interactive UI element
         while await actor.isBlocking {

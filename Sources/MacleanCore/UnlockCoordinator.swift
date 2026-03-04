@@ -31,40 +31,31 @@ public final class UnlockCoordinator: Sendable {
                 }
             }
             
-            // 2. Touch ID Path
+            // 2. Authentication Path (Touch ID / Apple Watch / Password)
             if requireTouchID {
                 group.addTask {
-                    let context = LAContext()
-                    var authError: NSError?
-                    
-                    // Touch ID Deadlock Guard: LAContext evaluation is purely asynchronous 
-                    // and non-blocking here.
-                    guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) else {
-                        // If Touch ID is unavailable, we just hang this task so the timeout can win.
-                        // If there is no timeout, we must throw to abort the block.
-                        if timeout == nil {
-                            throw MacleanError.touchIDNotAvailable
+                    while true {
+                        let context = LAContext()
+                        var authError: NSError?
+                        
+                        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError) {
+                            do {
+                                let success = try await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Unlock Maclean to restore input")
+                                if success {
+                                    return // Authentication succeeded! Break the group.
+                                }
+                            } catch {
+                                // User canceled or failed authentication.
+                                // We swallow the error and loop to prompt them again.
+                            }
                         } else {
-                            try await Task.sleep(nanoseconds: UInt64.max)
-                            return
-                        }
-                    }
-                    
-                    do {
-                        let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Unlock Maclean to restore input")
-                        if !success {
-                            // Should theoretically throw, but if it returns false, hang this path.
+                            // Hardware has zero authentication capability.
+                            // If there is no timeout, they MUST use the emergency chord.
                             try await Task.sleep(nanoseconds: UInt64.max)
                         }
-                    } catch {
-                        if timeout == nil {
-                            // If user cancels and there's no timeout, they are permanently locked out unless they use chord.
-                            // Throw to force an abort.
-                            throw error
-                        } else {
-                            // Just wait for timeout.
-                            try await Task.sleep(nanoseconds: UInt64.max)
-                        }
+                        
+                        // Wait 1 second before re-prompting to avoid spamming the UI thread immediately
+                        try await Task.sleep(nanoseconds: 1_000_000_000)
                     }
                 }
             }
