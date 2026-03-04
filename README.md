@@ -41,18 +41,27 @@ To function, **Maclean requires Accessibility permissions**.
 
 ### CLI Usage
 
-The `maclean` CLI offers a clean, spinner-based terminal UI while blocking input.
+The `maclean` CLI offers a clean, spinner-based terminal UI while blocking input. It defaults to 60 seconds if no arguments are provided.
 
 ```bash
-# Block for exactly 30 seconds, then auto-unblock
-maclean --time 30
+# Block for exactly 60 seconds (default)
+maclean
+
+# Block for exactly 30 seconds
+maclean 30
 
 # Block indefinitely until a Touch ID verify succeeds
-maclean --touch-id
+maclean touch
 
-# Block for 60 seconds OR until Touch ID verify (whichever comes first)
-maclean --time 60 --touch-id
+# Block for 120 seconds OR until Touch ID verify (whichever comes first)
+maclean 120 touch
 ```
+
+**How to Stop Early:**
+
+- Press `Ctrl+C` in your terminal.
+- Use Touch ID (if enabled).
+- Press the global emergency chord: `Left Shift` + `Right Shift` + `Escape`.
 
 ## Architecture & OS-Level Safety
 

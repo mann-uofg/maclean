@@ -5,20 +5,20 @@
 maclean \- macOS Input Blocker for physical cleaning
 .SH SYNOPSIS
 .B maclean
-[--time \fIseconds\fR] [--touch-id]
+[<seconds>] [touch]
 .SH DESCRIPTION
 .B maclean
 is a lightweight macOS utility designed to block system-wide keyboard and mouse input temporarily. This allows you to physically clean your Mac's input devices without triggering accidental clicks or key presses.
 .PP
 The tool relies on macOS \fBCGEventTap\fR APIs and requires Accessibility permissions to function. 
 .PP
-You must provide either a timeout duration, a Touch ID requirement, or both. If both are provided, the lock is released when either condition is met.
+If no arguments are provided, it defaults to blocking for 60 seconds. You can provide a timeout duration, require Touch ID, or both.
 .SH OPTIONS
 .TP
-.BR \-\-time " \fIseconds\fR"
+.BR <seconds>
 The duration in seconds to block input. Input is automatically restored after the timer expires.
 .TP
-.BR \-\-touch-id
+.BR touch
 Require biometric authentication (Touch ID) to unlock input.
 .TP
 .B \-\-help, \-h
@@ -28,14 +28,17 @@ Print usage instructions.
 Print the installed version of maclean.
 .SH EXAMPLES
 .TP
+Block input for exactly 60 seconds (default):
+.B maclean
+.TP
 Block input for exactly 30 seconds:
-.B maclean \-\-time 30
+.B maclean 30
 .TP
 Block input indefinitely until Touch ID is verified:
-.B maclean \-\-touch-id
+.B maclean touch
 .TP
-Block input for 60 seconds OR until Touch ID is verified:
-.B maclean \-\-time 60 \-\-touch-id
+Block input for 120 seconds OR until Touch ID is verified:
+.B maclean 120 touch
 .SH EXIT STATUS
 Returns 0 on successful execution and clean unblock. Returns >0 if an error occurs (e.g., Accessibility permission denied, invalid arguments).
 .SH PERMISSIONS

@@ -8,15 +8,26 @@ func printUsage() {
     maclean — macOS Input Blocker (\(VERSION))
 
     USAGE:
-      maclean --time <seconds>       # Block for N seconds, then auto-unblock
-      maclean --touch-id             # Block until Touch ID verified
-      maclean --time 30 --touch-id   # Touch ID OR timeout, whichever comes first
-      maclean --help                 # Usage instructions
-      maclean --version              # Print version
+      maclean                 # Block for 60 seconds (default)
+      maclean <seconds>       # Block for exactly N seconds
+      maclean touch           # Block indefinitely until Touch ID is verified
+      maclean <seconds> touch # Block for N seconds OR until Touch ID
+
+    OPTIONS:
+      -h, --help              # Print this help message
+      -v, --version           # Print version
 
     EXAMPLES:
-      maclean --time 60
-      maclean --touch-id
+      maclean                 (blocks for 1 minute)
+      maclean 30              (blocks for 30 seconds)
+      maclean touch           (blocks until Touch ID)
+      maclean 120 touch       (blocks for 2 minutes or until Touch ID)
+
+    HOW TO STOP:
+      - Wait for the timer to end
+      - Use Touch ID (if enabled)
+      - Press Ctrl+C in this terminal
+      - Press Left Shift + Right Shift + Escape simultaneously
     """
     print(usage)
 }
@@ -24,42 +35,34 @@ func printUsage() {
 func parseArguments() -> (timeout: TimeInterval?, touchID: Bool) {
     let args = CommandLine.arguments.dropFirst()
     
-    if args.contains("--help") || args.contains("-h") {
+    if args.contains("--help") || args.contains("-h") || args.contains("help") {
         printUsage()
         exit(0)
     }
     
-    if args.contains("--version") || args.contains("-v") {
+    if args.contains("--version") || args.contains("-v") || args.contains("version") {
         print("maclean version \(VERSION)")
         exit(0)
+    }
+    
+    if args.isEmpty {
+        // Default to 60 seconds if no arguments are provided
+        return (60.0, false)
     }
     
     var timeout: TimeInterval?
     var touchID = false
     
-    var argsIterator = args.makeIterator()
-    while let arg = argsIterator.next() {
-        switch arg {
-        case "--time":
-            if let val = argsIterator.next(), let parsedTimeout = Double(val) {
-                timeout = parsedTimeout
-            } else {
-                print("Error: --time requires a numeric value in seconds.")
-                exit(1)
-            }
-        case "--touch-id":
+    for arg in args {
+        if arg.lowercased() == "touch" || arg == "--touch-id" {
             touchID = true
-        default:
-            print("Error: Unknown argument '\(arg)'")
+        } else if let parsedTimeout = Double(arg) {
+            timeout = parsedTimeout
+        } else {
+            print("Error: Unknown argument '\\(arg)'\\n")
             printUsage()
             exit(1)
         }
-    }
-    
-    if timeout == nil && !touchID {
-        print("Error: You must specify --time or --touch-id (or both).")
-        printUsage()
-        exit(1)
     }
     
     return (timeout, touchID)
