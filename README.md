@@ -13,7 +13,7 @@
 You can install the CLI tool via Homebrew.
 
 ```bash
-brew install maclean
+brew install mann-uofg/maclean/maclean
 ```
 
 ### Manual Install from Source
