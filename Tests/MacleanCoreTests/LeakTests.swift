@@ -12,44 +12,56 @@ final class LeakTests: XCTestCase {
         
         let didComplete = expectation(description: "Cycle completed")
         
-        Task {
-            let eventTap = EventTapManager()
-            let unlock = UnlockCoordinator()
-            let watchdog = WatchdogManager()
-            
-            let actor = BlockingSessionActor(
-                eventTapManager: eventTap,
-                unlockCoordinator: unlock,
-                watchdogManager: watchdog
-            )
-            
-            weakActor = actor
-            weakEventTap = eventTap
-            weakCoordinator = unlock
-            weakWatchdog = watchdog
-            
-            do {
-                try await actor.startBlocking(timeout: 1, requireTouchID: false)
-                // Stop it early to test cleanup
-                await actor.stopBlocking()
-            } catch {
-                XCTFail("Start blocking threw: \\(error)")
-            }
-            
-            didComplete.fulfill()
-        }
+        // Use a separate actor or function to encapsulate the strong references
+        // so that they genuinely go out of scope before we test the weak refs.
+        await runLifecycleTask(
+            actorRef: &weakActor, 
+            eventTapRef: &weakEventTap, 
+            coordinatorRef: &weakCoordinator, 
+            watchdogRef: &weakWatchdog
+        )
         
+        didComplete.fulfill()
         await fulfillment(of: [didComplete], timeout: 2.0)
         
-        // At this point, the Task block is done and all strong references 
-        // to the core components should be released.
-        // Wait a tiny bit for async deallocation if any 
-        // (Task cleanup can sometimes take a microsecond)
+        // Wait a tiny bit for async deallocation if any
         try? await Task.sleep(nanoseconds: 50_000_000)
         
         XCTAssertNil(weakActor, "BlockingSessionActor leaked!")
         XCTAssertNil(weakEventTap, "EventTapManager leaked!")
         XCTAssertNil(weakCoordinator, "UnlockCoordinator leaked!")
         XCTAssertNil(weakWatchdog, "WatchdogManager leaked!")
+    }
+    
+    @MainActor
+    private func runLifecycleTask(
+        actorRef: inout weak BlockingSessionActor?,
+        eventTapRef: inout weak EventTapManager?,
+        coordinatorRef: inout weak UnlockCoordinator?,
+        watchdogRef: inout weak WatchdogManager?
+    ) async {
+        let eventTap = EventTapManager()
+        let unlock = UnlockCoordinator()
+        let watchdog = WatchdogManager()
+        
+        let actor = BlockingSessionActor(
+            eventTapManager: eventTap,
+            unlockCoordinator: unlock,
+            watchdogManager: watchdog
+        )
+        
+        actorRef = actor
+        eventTapRef = eventTap
+        coordinatorRef = unlock
+        watchdogRef = watchdog
+        
+        do {
+            try await actor.startBlocking(timeout: 1, requireTouchID: false)
+            await actor.stopBlocking()
+        } catch {
+            XCTFail("Start blocking threw: \(error)")
+        }
+        
+        // All strong references (eventTap, unlock, watchdog, actor) normally out of scope here
     }
 }
