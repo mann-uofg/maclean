@@ -1,0 +1,54 @@
+.\" Manpage for maclean.
+.\" Contact: https://github.com/maclean/maclean
+.TH maclean 1 "March 2026" "1.0.0" "maclean manual"
+.SH NAME
+maclean \- macOS Input Blocker for physical cleaning
+.SH SYNOPSIS
+.B maclean
+[--time \fIseconds\fR] [--touch-id]
+.SH DESCRIPTION
+.B maclean
+is a lightweight macOS utility designed to block system-wide keyboard and mouse input temporarily. This allows you to physically clean your Mac's input devices without triggering accidental clicks or key presses.
+.PP
+The tool relies on macOS \fBCGEventTap\fR APIs and requires Accessibility permissions to function. 
+.PP
+You must provide either a timeout duration, a Touch ID requirement, or both. If both are provided, the lock is released when either condition is met.
+.SH OPTIONS
+.TP
+.BR \-\-time " \fIseconds\fR"
+The duration in seconds to block input. Input is automatically restored after the timer expires.
+.TP
+.BR \-\-touch-id
+Require biometric authentication (Touch ID) to unlock input.
+.TP
+.B \-\-help, \-h
+Print usage instructions.
+.TP
+.B \-\-version, \-v
+Print the installed version of maclean.
+.SH EXAMPLES
+.TP
+Block input for exactly 30 seconds:
+.B maclean \-\-time 30
+.TP
+Block input indefinitely until Touch ID is verified:
+.B maclean \-\-touch-id
+.TP
+Block input for 60 seconds OR until Touch ID is verified:
+.B maclean \-\-time 60 \-\-touch-id
+.SH EXIT STATUS
+Returns 0 on successful execution and clean unblock. Returns >0 if an error occurs (e.g., Accessibility permission denied, invalid arguments).
+.SH PERMISSIONS
+Maclean requires Accessibility permissions. To grant access:
+.br
+Go to \fBSystem Settings\fR -> \fBPrivacy & Security\fR -> \fBAccessibility\fR
+.br
+Toggle the switch for \fBMaclean\fR (or your terminal application) to ON.
+.SH SAFE UNBLOCK CHORD
+If maclean crashes or hangs unexpectedly, or if you need to end the session immediately without Touch ID or waiting for the timer, press simultaneously:
+.br
+\fBLeft Shift + Right Shift + Escape\fR
+.SH BUGS
+Report bugs on GitHub at \fBhttps://github.com/maclean/maclean/issues\fR
+.SH AUTHORS
+Maclean Open Source Community

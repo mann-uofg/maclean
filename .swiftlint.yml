@@ -1,0 +1,13 @@
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+opt_in_rules:
+  - force_unwrapping
+  - empty_count
+  - vertical_parameter_alignment_on_call
+  - unused_declaration
+analyzer_rules:
+  - unused_import
+excluded:
+  - .build
+  - Package.swift
