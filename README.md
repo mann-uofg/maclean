@@ -76,7 +76,7 @@ Maclean is designed from the ground up to prevent OS-level lockouts while mainta
 
 - **Time-based**: Input restores automatically when the timer reaches zero.
 - **Touch ID**: A biometric unblock via `LocalAuthentication`.
-- **Safe Key Chord (Emergency)**: If all else fails, you can press **Left Shift + Right Shift + Escape** simultaneously to force the kernel tap to release immediately.
+- **Safe Key Chord (Emergency)**: If all else fails, you can press **Control + Option + Command + Escape** simultaneously to force the kernel tap to release immediately.
 
 ## Troubleshooting
 

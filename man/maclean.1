@@ -12,7 +12,7 @@ is a lightweight macOS utility designed to block system-wide keyboard and mouse 
 .PP
 The tool relies on macOS \fBCGEventTap\fR APIs and requires Accessibility permissions to function. 
 .PP
-If no arguments are provided, it defaults to blocking for 60 seconds. You can provide a timeout duration, require Touch ID, or both.
+If no arguments are provided, it defaults to blocking indefinitely until Touch ID is verified (\fBtouch\fR). You can override this by providing a timeout duration or combining both.
 .SH OPTIONS
 .TP
 .BR <seconds>
@@ -28,14 +28,11 @@ Print usage instructions.
 Print the installed version of maclean.
 .SH EXAMPLES
 .TP
-Block input for exactly 60 seconds (default):
+Block input indefinitely until Touch ID is verified (default):
 .B maclean
 .TP
 Block input for exactly 30 seconds:
 .B maclean 30
-.TP
-Block input indefinitely until Touch ID is verified:
-.B maclean touch
 .TP
 Block input for 120 seconds OR until Touch ID is verified:
 .B maclean 120 touch
@@ -50,7 +47,7 @@ Toggle the switch for \fBMaclean\fR (or your terminal application) to ON.
 .SH SAFE UNBLOCK CHORD
 If maclean crashes or hangs unexpectedly, or if you need to end the session immediately without Touch ID or waiting for the timer, press simultaneously:
 .br
-\fBLeft Shift + Right Shift + Escape\fR
+\fBControl + Option + Command + Escape\fR
 .SH BUGS
 Report bugs on GitHub at \fBhttps://github.com/maclean/maclean/issues\fR
 .SH AUTHORS

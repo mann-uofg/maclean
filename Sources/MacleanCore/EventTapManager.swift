@@ -49,17 +49,8 @@ public final class EventTapManager: @unchecked Sendable {
         set { lock.lock(); defer { lock.unlock() }; _onEmergencyUnlock = newValue }
     }
     
-    private var _leftShiftDown = false
-    private var leftShiftDown: Bool {
-        get { lock.lock(); defer { lock.unlock() }; return _leftShiftDown }
-        set { lock.lock(); defer { lock.unlock() }; _leftShiftDown = newValue }
-    }
-    
-    private var _rightShiftDown = false
-    private var rightShiftDown: Bool {
-        get { lock.lock(); defer { lock.unlock() }; return _rightShiftDown }
-        set { lock.lock(); defer { lock.unlock() }; _rightShiftDown = newValue }
-    }
+    // Track modifier state dynamically from the OS flag mask
+    // No need to cache separate left/right states
     
     private var _escapeDown = false
     private var escapeDown: Bool {
@@ -140,8 +131,7 @@ public final class EventTapManager: @unchecked Sendable {
         self.tapRunLoop = nil
         self.tapThread = nil
         
-        self.leftShiftDown = false
-        self.rightShiftDown = false
+        self.escapeDown = false
         self.escapeDown = false
     }
     
@@ -160,26 +150,20 @@ public final class EventTapManager: @unchecked Sendable {
             return Unmanaged.passUnretained(event)
         }
         
-        // Keyboard tracking for emergency chord: Left Shift + Right Shift + Escape
-        if type == .flagsChanged {
-            let flags = event.flags
-            leftShiftDown = flags.contains(.maskShift) && event.getIntegerValueField(.keyboardEventKeycode) == 56
-            rightShiftDown = flags.contains(.maskShift) && event.getIntegerValueField(.keyboardEventKeycode) == 60
-            
-            // If the user doesn't hit shift, flags.contains will be false
-            if !flags.contains(.maskShift) {
-                leftShiftDown = false
-                rightShiftDown = false
-            }
-        } else if type == .keyDown || type == .keyUp {
+        // Keyboard tracking for emergency chord: Control + Option + Command + Escape
+        if type == .keyDown || type == .keyUp {
             let keycode = event.getIntegerValueField(.keyboardEventKeycode)
             if keycode == 53 { // Escape
                 escapeDown = (type == .keyDown)
             }
         }
         
+        let hasCommand = event.flags.contains(.maskCommand)
+        let hasOption = event.flags.contains(.maskAlternate)
+        let hasControl = event.flags.contains(.maskControl)
+        
         // Check chord
-        if leftShiftDown && rightShiftDown && escapeDown {
+        if hasCommand && hasOption && hasControl && escapeDown {
             // Trigger emergency unlock. Do not block this thread.
             if let callback = onEmergencyUnlock {
                 Task {
