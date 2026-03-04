@@ -73,12 +73,8 @@ public final class EventTapManager: @unchecked Sendable {
     public func start() throws {
         guard tapPort == nil else { return } // Already started
         
-        let types: [CGEventType] = [
-            .keyDown, .keyUp, .flagsChanged,
-            .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp,
-            .mouseMoved, .leftMouseDragged, .rightMouseDragged, .scrollWheel
-        ]
-        let mask = types.reduce(CGEventMask(0)) { $0 | (1 << $1.rawValue) }
+        // Trap ALL possible macOS event types to guarantee total input lockdown
+        let mask: CGEventMask = ~0
         
         let selfUnretained = Unmanaged.passUnretained(self).toOpaque()
         

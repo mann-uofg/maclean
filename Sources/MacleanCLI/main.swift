@@ -8,7 +8,7 @@ func printUsage() {
     maclean — macOS Input Blocker (\(VERSION))
 
     USAGE:
-      maclean                 # Block for 60 seconds (default)
+      maclean                 # Block for 60 seconds OR until Touch ID (default)
       maclean <seconds>       # Block for exactly N seconds
       maclean touch           # Block indefinitely until Touch ID is verified
       maclean <seconds> touch # Block for N seconds OR until Touch ID
@@ -18,7 +18,7 @@ func printUsage() {
       -v, --version           # Print version
 
     EXAMPLES:
-      maclean                 (blocks for 1 minute)
+      maclean                 (blocks for 1 minute or Touch ID)
       maclean 30              (blocks for 30 seconds)
       maclean touch           (blocks until Touch ID)
       maclean 120 touch       (blocks for 2 minutes or until Touch ID)
@@ -46,8 +46,8 @@ func parseArguments() -> (timeout: TimeInterval?, touchID: Bool) {
     }
     
     if args.isEmpty {
-        // Default to 60 seconds if no arguments are provided
-        return (60.0, false)
+        // Default to 60 seconds and enable Touch ID if no arguments are provided
+        return (60.0, true)
     }
     
     var timeout: TimeInterval?
